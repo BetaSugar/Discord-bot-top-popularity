@@ -3,6 +3,8 @@ import datetime
 import sqlite3
 import bot_config
 
+intents = discord.Intents.default()
+intents.members = True
 
 now = datetime.datetime.now()
 currentTime=now.strftime("%d-%m-%Y %H:%M:%S")
@@ -13,7 +15,7 @@ try:
 except:
     pass 
 
-client = discord.Client()
+client = discord.Client(intents=intents)
 
 
 @client.event
@@ -21,13 +23,23 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(client))
 
 @client.event
+async def on_member_remove(member):
+    if member.guild.system_channel:
+        now = datetime.datetime.now()
+        currentTime=now.strftime("%d-%m-%Y %H:%M:%S")
+        await member.guild.system_channel.send(f"<@{member.id}> ушел с сервера! [{currentTime}]")    
+
+@client.event
 async def on_message(message):
     if message.author == client.user:
         return
 
     if message.attachments or 'https://' in message.content:
-        await message.add_reaction( bot_config.emojiLikeId)
-        await message.add_reaction( bot_config.emojiDislikeId)
+        emojiLike= client.get_emoji(int(bot_config.emojiLikeId))
+        emojiDislike= client.get_emoji(int(bot_config.emojiDislikeId))
+        await message.add_reaction(emojiLike)
+        await message.add_reaction(emojiDislike)
+
 
     if message.content.startswith('!счет'):
         try:
@@ -36,7 +48,7 @@ async def on_message(message):
             author_nick=await client.fetch_user(message.author.id)
             await message.channel.send(f'{author_nick} --> {points_was} лайков')
         except:
-            await message.channel.send(f'иди нахуй, у {author_nick} ни одного лайка')
+            await message.channel.send(f'к сожалению, у {author_nick} ни одного лайка')
 
 @client.event
 async def on_raw_reaction_add(payload):
