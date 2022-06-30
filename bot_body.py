@@ -85,7 +85,7 @@ async def on_raw_reaction_add(payload):
             try:    lstmessage= await channel_top.fetch_message(int(bot_config.messageTopId))
             except:
                 try:    lstmessage= await channel_top.fetch_message(channel_top.last_message_id)
-                except: await channel_top.send(f'Звёзды подполья:')
+                except: await channel_top.send(f'Звёзды:')
                 lstmessage= await channel_top.fetch_message(channel_top.last_message_id)
             actualTopID=[]
             actualTopPoints=[]
@@ -95,7 +95,7 @@ async def on_raw_reaction_add(payload):
                 actualTopPoints.append(row[0])
 
         
-            await lstmessage.edit(content=f'''**Звёзды подполья:**
+            await lstmessage.edit(content=f'''**Звёзды:**
 🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
 🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
 🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
@@ -123,7 +123,7 @@ __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
             try:    lstmessage= await channel_top.fetch_message(int(bot_config.messageTopId))
             except:
                 try:    lstmessage= await channel_top.fetch_message(channel_top.last_message_id)
-                except: await channel_top.send(f'Звёзды подполья:')
+                except: await channel_top.send(f'Звёзды:')
                 lstmessage= await channel_top.fetch_message(channel_top.last_message_id)
             actualTopID=[]
             actualTopPoints=[]
@@ -133,7 +133,7 @@ __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
                 actualTopPoints.append(row[0])
 
         
-            await lstmessage.edit(content=f'''**Звёзды подполья:**
+            await lstmessage.edit(content=f'''**Звёзды:**
 🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
 🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
 🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
@@ -182,7 +182,7 @@ async def on_raw_reaction_remove(payload):
             try:    lstmessage= await channel_top.fetch_message(int(bot_config.messageTopId))
             except:
                 try:    lstmessage= await channel_top.fetch_message(channel_top.last_message_id)
-                except: await channel_top.send(f'Звёзды подполья:')
+                except: await channel_top.send(f'Звёзды:')
                 lstmessage= await channel_top.fetch_message(channel_top.last_message_id)
             actualTopID=[]
             actualTopPoints=[]
@@ -192,7 +192,7 @@ async def on_raw_reaction_remove(payload):
                 actualTopPoints.append(row[0])
 
         
-            await lstmessage.edit(content=f'''**Звёзды подполья:**
+            await lstmessage.edit(content=f'''**Звёзды:**
 🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
 🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
 🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
@@ -221,7 +221,7 @@ __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
             try:    lstmessage= await channel_top.fetch_message(int(bot_config.messageTopId))
             except:
                 try:    lstmessage= await channel_top.fetch_message(channel_top.last_message_id)
-                except: await channel_top.send(f'Звёзды подполья:')
+                except: await channel_top.send(f'Звёзды:')
                 lstmessage= await channel_top.fetch_message(channel_top.last_message_id)
             actualTopID=[]
             actualTopPoints=[]
@@ -231,7 +231,7 @@ __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
                 actualTopPoints.append(row[0])
 
         
-            await lstmessage.edit(content=f'''**Звёзды подполья:**
+            await lstmessage.edit(content=f'''**Звёзды:**
 🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
 🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
 🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
