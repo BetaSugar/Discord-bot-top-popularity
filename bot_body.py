@@ -23,8 +23,9 @@ def currentTime():
     return now.strftime("%d-%m-%Y %H:%M:%S")
 
 def topPopularityStr(actualTopID, actualTopPoints):
-    topStr=f'''**Звёзды:**
-🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
+    topTitle='**Звёзды:**\n'
+    if len(actualTopID)>9:
+        topList=f'''🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
 🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
 🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
 __4.__   <@{actualTopID[3]}> - **{actualTopPoints[3]}**
@@ -34,7 +35,13 @@ __7.__   <@{actualTopID[6]}> - **{actualTopPoints[6]}**
 __8.__   <@{actualTopID[7]}> - **{actualTopPoints[7]}**
 __9.__   <@{actualTopID[8]}> - **{actualTopPoints[8]}**
 __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**'''
-    return topStr
+        return topTitle+topList
+    topList1, topList2='',''
+    for i in range(len(actualTopID)):
+        topList1+=f'__{i+1}.__   <@{actualTopID[i]}> - **{actualTopPoints[i]}**\n'
+    for i in range(len(actualTopID),10):
+        topList2+=f'__{i+1}.__\n'
+    return topTitle+topList1+topList2
 
 
 @client.event
