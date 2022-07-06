@@ -22,6 +22,21 @@ def currentTime():
     now = datetime.datetime.now()
     return now.strftime("%d-%m-%Y %H:%M:%S")
 
+def topPopularityStr(actualTopID, actualTopPoints):
+    topStr=f'''**Звёзды:**
+🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
+🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
+🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
+__4.__   <@{actualTopID[3]}> - **{actualTopPoints[3]}**
+__5.__   <@{actualTopID[4]}> - **{actualTopPoints[4]}**
+__6.__   <@{actualTopID[5]}> - **{actualTopPoints[5]}**
+__7.__   <@{actualTopID[6]}> - **{actualTopPoints[6]}**
+__8.__   <@{actualTopID[7]}> - **{actualTopPoints[7]}**
+__9.__   <@{actualTopID[8]}> - **{actualTopPoints[8]}**
+__10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**'''
+    return topStr
+
+
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
@@ -94,18 +109,8 @@ async def on_raw_reaction_add(payload):
             for row in cursor.execute(f"Select points FROM detail ORDER BY points DESC"):
                 actualTopPoints.append(row[0])
 
-        
-            await lstmessage.edit(content=f'''**Звёзды:**
-🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
-🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
-🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
-__4.__   <@{actualTopID[3]}> - **{actualTopPoints[3]}**
-__5.__   <@{actualTopID[4]}> - **{actualTopPoints[4]}**
-__6.__   <@{actualTopID[5]}> - **{actualTopPoints[5]}**
-__7.__   <@{actualTopID[6]}> - **{actualTopPoints[6]}**
-__8.__   <@{actualTopID[7]}> - **{actualTopPoints[7]}**
-__9.__   <@{actualTopID[8]}> - **{actualTopPoints[8]}**
-__10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
+            await lstmessage.edit(content=topPopularityStr(actualTopID, actualTopPoints))
+
 
         if payload.emoji.id==int(bot_config.emojiDislikeId):       #дизлайк            
             if author_ID not in list_of_ip:
@@ -131,17 +136,7 @@ __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
                 actualTopPoints.append(row[0])
 
         
-            await lstmessage.edit(content=f'''**Звёзды:**
-🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
-🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
-🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
-__4.__   <@{actualTopID[3]}> - **{actualTopPoints[3]}**
-__5.__   <@{actualTopID[4]}> - **{actualTopPoints[4]}**
-__6.__   <@{actualTopID[5]}> - **{actualTopPoints[5]}**
-__7.__   <@{actualTopID[6]}> - **{actualTopPoints[6]}**
-__8.__   <@{actualTopID[7]}> - **{actualTopPoints[7]}**
-__9.__   <@{actualTopID[8]}> - **{actualTopPoints[8]}**
-__10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''') 
+            await lstmessage.edit(content=topPopularityStr(actualTopID, actualTopPoints)) 
 
             
             
@@ -188,17 +183,7 @@ async def on_raw_reaction_remove(payload):
                 actualTopPoints.append(row[0])
 
         
-            await lstmessage.edit(content=f'''**Звёзды:**
-🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
-🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
-🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
-__4.__   <@{actualTopID[3]}> - **{actualTopPoints[3]}**
-__5.__   <@{actualTopID[4]}> - **{actualTopPoints[4]}**
-__6.__   <@{actualTopID[5]}> - **{actualTopPoints[5]}**
-__7.__   <@{actualTopID[6]}> - **{actualTopPoints[6]}**
-__8.__   <@{actualTopID[7]}> - **{actualTopPoints[7]}**
-__9.__   <@{actualTopID[8]}> - **{actualTopPoints[8]}**
-__10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
+            await lstmessage.edit(content=topPopularityStr(actualTopID, actualTopPoints))
 
 
         if payload.emoji.id==int(bot_config.emojiDislikeId):       #дизлайк            
@@ -225,17 +210,7 @@ __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
                 actualTopPoints.append(row[0])
 
         
-            await lstmessage.edit(content=f'''**Звёзды:**
-🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
-🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
-🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
-__4.__   <@{actualTopID[3]}> - **{actualTopPoints[3]}**
-__5.__   <@{actualTopID[4]}> - **{actualTopPoints[4]}**
-__6.__   <@{actualTopID[5]}> - **{actualTopPoints[5]}**
-__7.__   <@{actualTopID[6]}> - **{actualTopPoints[6]}**
-__8.__   <@{actualTopID[7]}> - **{actualTopPoints[7]}**
-__9.__   <@{actualTopID[8]}> - **{actualTopPoints[8]}**
-__10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
+            await lstmessage.edit(content=topPopularityStr(actualTopID, actualTopPoints))
 
 
 client.run(bot_config.TOKEN)
