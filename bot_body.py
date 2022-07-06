@@ -3,11 +3,8 @@ import datetime
 import sqlite3
 import bot_config
 
-intents = discord.Intents.default()
-intents.members = True
 
-now = datetime.datetime.now()
-currentTime=now.strftime("%d-%m-%Y %H:%M:%S")
+
 conn=sqlite3.connect("bot_base_points.db")   
 cursor=conn.cursor()
 try:
@@ -15,8 +12,15 @@ try:
 except:
     pass 
 
+
+intents = discord.Intents.default()
+intents.members = True
+intents.guilds = True
 client = discord.Client(intents=intents)
 
+def currentTime():
+    now = datetime.datetime.now()
+    return now.strftime("%d-%m-%Y %H:%M:%S")
 
 @client.event
 async def on_ready():
@@ -25,9 +29,7 @@ async def on_ready():
 @client.event
 async def on_member_remove(member):
     if member.guild.system_channel:
-        now = datetime.datetime.now()
-        currentTime=now.strftime("%d-%m-%Y %H:%M:%S")
-        await member.guild.system_channel.send(f"<@{member.id}> ушел с сервера! [{currentTime}]")    
+        await member.guild.system_channel.send(f"<@{member.id}> ушел с сервера! [{currentTime()}]")    
 
 @client.event
 async def on_message(message):
@@ -76,10 +78,8 @@ async def on_raw_reaction_add(payload):
             for row in cursor.execute(f"Select points FROM detail where id={author_ID}"):
                 points_was=(row[0])
             cursor.execute(f"UPDATE detail SET points = {points_was+1} WHERE id = {author_ID}")
-            conn.commit()
-            now = datetime.datetime.now()
-            currentTime=now.strftime("%d-%m-%Y %H:%M:%S")          
-            print(f'[{currentTime}] {liker_nick} dobavil {author_nick} +1 ({points_was}-->{points_was+1})')
+            conn.commit()          
+            print(f'[{currentTime()}] {liker_nick} dobavil {author_nick} +1 ({points_was}-->{points_was+1})')
 
             channel_top = client.get_channel(int(bot_config.channelTopId))
             try:    lstmessage= await channel_top.fetch_message(int(bot_config.messageTopId))
@@ -114,10 +114,8 @@ __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
             for row in cursor.execute(f"Select points FROM detail where id={author_ID}"):
                 points_was=(row[0])
             cursor.execute(f"UPDATE detail SET points = {points_was-1} WHERE id = {author_ID}")
-            conn.commit()
-            now = datetime.datetime.now()
-            currentTime=now.strftime("%d-%m-%Y %H:%M:%S")          
-            print(f'[{currentTime}] {liker_nick} dobavil {author_nick} -1 ({points_was}-->{points_was-1})') 
+            conn.commit()          
+            print(f'[{currentTime()}] {liker_nick} dobavil {author_nick} -1 ({points_was}-->{points_was-1})') 
 
             channel_top = client.get_channel(int(bot_config.channelTopId))
             try:    lstmessage= await channel_top.fetch_message(int(bot_config.messageTopId))
@@ -173,10 +171,8 @@ async def on_raw_reaction_remove(payload):
             for row in cursor.execute(f"Select points FROM detail where id={author_ID}"):
                 points_was=(row[0])
             cursor.execute(f"UPDATE detail SET points = {points_was-1} WHERE id = {author_ID}")
-            conn.commit()
-            now = datetime.datetime.now()
-            currentTime=now.strftime("%d-%m-%Y %H:%M:%S")          
-            print(f'[{currentTime}] {liker_nick} ubral {author_nick} +1 ({points_was}-->{points_was-1})')
+            conn.commit()         
+            print(f'[{currentTime()}] {liker_nick} ubral {author_nick} +1 ({points_was}-->{points_was-1})')
 
             channel_top = client.get_channel(int(bot_config.channelTopId))
             try:    lstmessage= await channel_top.fetch_message(int(bot_config.messageTopId))
@@ -212,10 +208,8 @@ __10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**''')
             for row in cursor.execute(f"Select points FROM detail where id={author_ID}"):
                 points_was=(row[0])
             cursor.execute(f"UPDATE detail SET points = {points_was+1} WHERE id = {author_ID}")
-            conn.commit()
-            now = datetime.datetime.now()
-            currentTime=now.strftime("%d-%m-%Y %H:%M:%S")          
-            print(f'[{currentTime}] {liker_nick} ubral {author_nick} -1 ({points_was}-->{points_was+1})')
+            conn.commit()          
+            print(f'[{currentTime()}] {liker_nick} ubral {author_nick} -1 ({points_was}-->{points_was+1})')
 
             channel_top = client.get_channel(int(bot_config.channelTopId))
             try:    lstmessage= await channel_top.fetch_message(int(bot_config.messageTopId))
