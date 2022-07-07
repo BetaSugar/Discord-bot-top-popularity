@@ -51,7 +51,7 @@ async def on_ready():
 @client.event
 async def on_member_remove(member):
     if member.guild.system_channel:
-        await member.guild.system_channel.send(f"<@{member.id}> ушел с сервера! [{currentTime()}]")    
+        await member.guild.system_channel.send(f"<@{member.id}> ({member.name}) ушел с сервера! [{currentTime()}]")    
 
 @client.event
 async def on_message(message):
