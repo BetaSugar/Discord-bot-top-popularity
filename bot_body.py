@@ -8,8 +8,10 @@ from discord.ext import commands
 config = configparser.ConfigParser()
 config.read('conf.ini')
 
+
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
+
 
 conn = sqlite3.connect("bot_base_points.db")
 cursor = conn.cursor()
