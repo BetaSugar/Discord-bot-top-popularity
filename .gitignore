@@ -1,3 +1,4 @@
+.gitignore
 bot_base_points.db
 conf.ini
-.vs/
+
