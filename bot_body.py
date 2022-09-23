@@ -3,11 +3,8 @@ import sqlite3
 import datetime
 import discord
 from discord.ext import commands
-
-
-config = configparser.ConfigParser()
-config.read('conf.ini')
-
+import asyncio
+import os
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -23,12 +20,52 @@ except:
     print('The database has already been created')
 
 
+def createConfig(path: str):
+    # Create a config file
+    config = configparser.ConfigParser(allow_no_value=True)
+    config.add_section('discord')
+    config.add_section('wasd.tv')
+    config.add_section('twitch.tv')
+    config.set('discord', 'token', '')
+    config.set('discord',
+               '#If True, the bot puts likes under the posts and forms the top of popularity. (default: false)')
+    config.set('discord', 'top_popularity', 'false')
+    config.set('discord',
+               '#If True, custom emoji will be registered (default: false)')
+    config.set('discord', 'custom_like_emojis', 'false')
+    config.set('discord',
+               '#id like emojis')
+    config.set('discord', 'emoji_like_id', '')
+    config.set('discord',
+               '#id dislike emojis')
+    config.set('discord', 'emoji_dislike_id', '')
+    config.set('discord',
+               '#ID of the channel and the message-top that is stored in this channel')
+    config.set('discord', 'channel_top_id', '')
+    config.set('discord', 'message_top_id', '')
+    config.set('discord', '#id role for notifications')
+    config.set('discord', 'notif_role_id', '')
+
+    with open(path, 'w') as conf:
+        config.write(conf)
+
+
+def getConfig(path):
+    # Returns the config object
+    if not os.path.exists(path):
+        createConfig(path)
+
+    config = configparser.ConfigParser()
+    config.read(path)
+    return config
+
+
 def currentTime():
     now = datetime.datetime.now()
     return now.strftime("%d-%m-%Y %H:%M:%S")
 
 
-def topPopularityStr(actualTopID: list, actualTopPoints: list):
+def top_PopularityStr(actualTopID: list, actualTopPoints: list):
     topTitle = "**Звёзды:**\n"
     if len(actualTopID) > 9:
         topList = f"""🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
@@ -52,7 +89,7 @@ def topPopularityStr(actualTopID: list, actualTopPoints: list):
 
 @bot.event
 async def on_ready():
-    game = discord.Game("пися попа")
+    game = discord.Game("Praise BetaSugar")
     await bot.change_presence(activity=game)
     print(f"We have logged in as {bot.user}")
 
@@ -81,12 +118,12 @@ async def notifications(ctx):
     notif = False
 
     for roles in ctx.author.roles:
-        if roles.id == int(config['discord']['notifRoleId']):
+        if roles.id == int(config['discord']['notif_role_id']):
             notif = True
             role = roles
             break
 
-    role = ctx.guild.get_role(int(config['discord']['notifRoleId']))
+    role = ctx.guild.get_role(int(config['discord']['notif_role_id']))
     if notif:
         await ctx.author.remove_roles(role)
     else:
@@ -106,9 +143,8 @@ async def on_raw_reaction_add(payload):
     if liker_id == bot.user.id:
         return
     channel = bot.get_channel(payload.channel_id)  # получаем объект канала
-    message = await channel.fetch_message(
-        payload.message_id
-    )  # получаем объект сообщения
+    # получаем объект сообщения
+    message = await channel.fetch_message(payload.message_id)
     author_ID = message.author.id  # автор залайконого поста
     # ник автора залайконого поста
     author_nick = await bot.fetch_user(author_ID)
@@ -121,7 +157,7 @@ async def on_raw_reaction_add(payload):
     for z in range(len(massive_big)):
         list_of_ip.append(massive_big[z][0])
 
-    if payload.emoji.id == int(config['discord']['emojiLikeId']):  # лайк
+    if payload.emoji.id == int(config['discord']['emoji_like_id']):  # лайк
         if author_ID not in list_of_ip:
             cursor.execute(
                 f"Insert into detail VALUES ('{author_ID}', '{author_nick}','{0}')"
@@ -137,9 +173,9 @@ async def on_raw_reaction_add(payload):
             f"[{currentTime()}] {liker_nick} dobavil {author_nick} +1 ({points_was}-->{points_was+1})"
         )
 
-        channel_top = bot.get_channel(int(config['discord']['channelTopId']))
+        channel_top = bot.get_channel(int(config['discord']['channel_top_id']))
         try:
-            lstmessage = await channel_top.fetch_message(int(config['discord']['messageTopId']))
+            lstmessage = await channel_top.fetch_message(int(config['discord']['message_top_id']))
         except:
             try:
                 lstmessage = await channel_top.fetch_message(
@@ -155,10 +191,10 @@ async def on_raw_reaction_add(payload):
         for row in cursor.execute(f"Select points FROM detail ORDER BY points DESC"):
             actualTopPoints.append(row[0])
 
-        await lstmessage.edit(content=topPopularityStr(actualTopID, actualTopPoints))
+        await lstmessage.edit(content=top_PopularityStr(actualTopID, actualTopPoints))
 
     # дизлайк
-    if payload.emoji.id == int(config['discord']['emojiDislikeId']):
+    if payload.emoji.id == int(config['discord']['emoji_dislike_id']):
         if author_ID not in list_of_ip:
             cursor.execute(
                 f"Insert into detail VALUES ('{author_ID}', '{author_nick}','{0}')"
@@ -174,9 +210,9 @@ async def on_raw_reaction_add(payload):
             f"[{currentTime()}] {liker_nick} dobavil {author_nick} -1 ({points_was}-->{points_was-1})"
         )
 
-        channel_top = bot.get_channel(int(config['discord']['channelTopId']))
+        channel_top = bot.get_channel(int(config['discord']['channel_top_id']))
         try:
-            lstmessage = await channel_top.fetch_message(int(config['discord']['messageTopId']))
+            lstmessage = await channel_top.fetch_message(int(config['discord']['message_top_id']))
         except:
             try:
                 lstmessage = await channel_top.fetch_message(
@@ -192,7 +228,7 @@ async def on_raw_reaction_add(payload):
         for row in cursor.execute(f"Select points FROM detail ORDER BY points DESC"):
             actualTopPoints.append(row[0])
 
-        await lstmessage.edit(content=topPopularityStr(actualTopID, actualTopPoints))
+        await lstmessage.edit(content=top_PopularityStr(actualTopID, actualTopPoints))
 
 
 @bot.event
@@ -218,7 +254,7 @@ async def on_raw_reaction_remove(payload):
     for z in range(len(massive_big)):
         list_of_ip.append(massive_big[z][0])
 
-    if payload.emoji.id == int(config['discord']['emojiLikeId']):  # лайк
+    if payload.emoji.id == int(config['discord']['emoji_like_id']):  # лайк
         if author_ID not in list_of_ip:
             cursor.execute(
                 f"Insert into detail VALUES ('{author_ID}', '{author_nick}','{0}')"
@@ -234,9 +270,9 @@ async def on_raw_reaction_remove(payload):
             f"[{currentTime()}] {liker_nick} ubral {author_nick} +1 ({points_was}-->{points_was-1})"
         )
 
-        channel_top = bot.get_channel(int(config['discord']['channelTopId']))
+        channel_top = bot.get_channel(int(config['discord']['channel_top_id']))
         try:
-            lstmessage = await channel_top.fetch_message(int(config['discord']['messageTopId']))
+            lstmessage = await channel_top.fetch_message(int(config['discord']['message_top_id']))
         except:
             try:
                 lstmessage = await channel_top.fetch_message(
@@ -252,9 +288,9 @@ async def on_raw_reaction_remove(payload):
         for row in cursor.execute(f"Select points FROM detail ORDER BY points DESC"):
             actualTopPoints.append(row[0])
 
-        await lstmessage.edit(content=topPopularityStr(actualTopID, actualTopPoints))
+        await lstmessage.edit(content=top_PopularityStr(actualTopID, actualTopPoints))
 
-    if payload.emoji.id == int(config['discord']['emojiDislikeId']):  # дизлайк
+    if payload.emoji.id == int(config['discord']['emoji_dislike_id']):  # дизлайк
         if author_ID not in list_of_ip:
             cursor.execute(
                 f"Insert into detail VALUES ('{author_ID}', '{author_nick}','{0}')"
@@ -270,9 +306,9 @@ async def on_raw_reaction_remove(payload):
             f"[{currentTime()}] {liker_nick} ubral {author_nick} -1 ({points_was}-->{points_was+1})"
         )
 
-        channel_top = bot.get_channel(int(config['discord']['channelTopId']))
+        channel_top = bot.get_channel(int(config['discord']['channel_top_id']))
         try:
-            lstmessage = await channel_top.fetch_message(int(config['discord']['messageTopId']))
+            lstmessage = await channel_top.fetch_message(int(config['discord']['message_top_id']))
         except:
             try:
                 lstmessage = await channel_top.fetch_message(
@@ -288,7 +324,7 @@ async def on_raw_reaction_remove(payload):
         for row in cursor.execute(f"Select points FROM detail ORDER BY points DESC"):
             actualTopPoints.append(row[0])
 
-        await lstmessage.edit(content=topPopularityStr(actualTopID, actualTopPoints))
+        await lstmessage.edit(content=top_PopularityStr(actualTopID, actualTopPoints))
 
 
 @bot.event
@@ -296,12 +332,16 @@ async def on_message(message):
     await bot.process_commands(message)
 
     if message.attachments or 'https://' in message.content:
-        emojiLike = bot.get_emoji(int(config['discord']['emojiLikeId']))
-        emojiDislike = bot.get_emoji(int(config['discord']['emojiDislikeId']))
+        emojiLike = bot.get_emoji(int(config['discord']['emoji_like_id']))
+        emojiDislike = bot.get_emoji(
+            int(config['discord']['emoji_dislike_id']))
         await message.add_reaction(emojiLike)
         await message.add_reaction(emojiDislike)
 
+config = getConfig('conf.ini')
+
+
+#token = config['discord']['token']
+#loop = asyncio.get_event_loop()
+# loop.run_until_complete(bot.start(token))
 bot.run(config['discord']['token'])
-
-
-
