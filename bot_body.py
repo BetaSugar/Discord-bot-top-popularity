@@ -12,12 +12,9 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 conn = sqlite3.connect("bot_base_points.db")
 cursor = conn.cursor()
-try:
-    cursor.execute(
-        """CREATE TABLE detail (id int, nickname text, points int)""")
-    print('Database created')
-except:
-    print('The database has already been created')
+
+cursor.execute(
+    """CREATE TABLE if not exists detail (id int, nickname text, points int)""")
 
 
 def create_config(path):
