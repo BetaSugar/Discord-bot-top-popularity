@@ -1,4 +1,4 @@
-bot_base_points.db
+*.db
 conf.ini
 bot_test.py
 *.txt
