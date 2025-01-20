@@ -8,8 +8,6 @@ def create_config(path: str):
     """
     config = configparser.ConfigParser(allow_no_value=True)
     config.add_section('discord')
-    config.add_section('wasd.tv')
-    config.add_section('twitch.tv')
     config.set('discord', 'token', '')
     config.set('discord', '#ID like and dislike emojis')
     config.set('discord', 'emoji_like_id', '')
