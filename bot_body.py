@@ -16,10 +16,14 @@ CREATE TABLE IF NOT EXISTS reputation (
 )
 ''')
 conn.commit()
+print('Соединение с базой данных установлено')
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
+intents.members = True
+intents.guilds = True
+intents.messages = True
 client = discord.Client(intents=intents)
 
 
@@ -28,7 +32,6 @@ async def on_ready():
     print(f'We have logged in as {client.user}')
     # Запуск функции для чтения терминала
     asyncio.create_task(terminal_listener())
-    asyncio.create_task(update_top_10())
 
 
 @client.event
@@ -80,19 +83,23 @@ async def on_reaction_remove(reaction, user):
 
 
 def increase_reputation(user_id, delta):
-    cursor.execute(
-        'SELECT reputation FROM reputation WHERE user_id = ?', (user_id,))
-    result = cursor.fetchone()
-
-    if result:
-        new_reputation = result[0] + delta
+    try:
         cursor.execute(
-            'UPDATE reputation SET reputation = ? WHERE user_id = ?', (new_reputation, user_id))
-    else:
-        cursor.execute(
-            'INSERT INTO reputation (user_id, reputation) VALUES (?, ?)', (user_id, delta))
+            'SELECT reputation FROM reputation WHERE user_id = ?', (user_id,))
+        result = cursor.fetchone()
 
-    conn.commit()
+        if result:
+            new_reputation = result[0] + delta
+            cursor.execute(
+                'UPDATE reputation SET reputation = ? WHERE user_id = ?', (new_reputation, user_id))
+        else:
+            cursor.execute(
+                'INSERT INTO reputation (user_id, reputation) VALUES (?, ?)', (user_id, delta))
+
+        conn.commit()
+        print('изменение зафиксировано')
+    except sqlite3.Error as e:
+        print(f"Ошибка работы с базой данных: {e}")
 
 
 async def terminal_listener():
@@ -119,46 +126,6 @@ async def terminal_listener():
             break
 
 
-async def update_top_10():
-    global top_message_id
-
-    while True:
-        # Получаем топ-10 пользователей по репутации
-        cursor.execute(
-            'SELECT user_id, reputation FROM reputation ORDER BY reputation DESC LIMIT 10')
-        top_users = cursor.fetchall()
-
-        # Формируем текст топа
-        top_text = "Топ 10 пользователей с наибольшей репутацией:\n"
-        for idx, (user_id, reputation) in enumerate(top_users, 1):
-            user = await client.fetch_user(user_id)
-            top_text += f"{idx}. {user.name} - {reputation} репутации\n"
-
-        # Получаем канал для отправки топа
-        channel = client.get_channel(CHANNEL_ID)
-        if channel:
-            if top_message_id:
-                # Если ID сообщения с топом уже есть, редактируем это сообщение
-                try:
-                    top_message = await channel.fetch_message(top_message_id)
-                    await top_message.edit(content=top_text)
-                except discord.NotFound:
-                    # В случае, если сообщение не найдено (например, оно было удалено)
-                    print("Предыдущее сообщение с топом не найдено.")
-                    top_message_id = None
-            else:
-                # Если сообщение с топом еще не отправлено, отправляем новое
-                top_message = await channel.send(top_text)
-                top_message_id = top_message.id
-
-        # Ждем 5 минут (300 секунд) до следующего обновления
-        await asyncio.sleep(300)
-
-
-# Глобальная переменная для хранения ID сообщения с топом
-top_message_id = None
-
-
 def currentTime():
     now = datetime.now()
     return now.strftime("%d-%m-%Y %H:%M:%S")
@@ -168,6 +135,6 @@ with open('token.txt') as r:
     token = r.read()
 
 with open('top10.txt') as r:
-    CHANNEL_ID = r.read()
+    channel_id = r.read()
 
 client.run(token)
