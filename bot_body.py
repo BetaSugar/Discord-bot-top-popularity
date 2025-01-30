@@ -5,14 +5,14 @@ from datetime import datetime
 
 
 # Соединение с базой данных
-conn = sqlite3.connect('reputation.db')
+conn = sqlite3.connect('points.db')
 cursor = conn.cursor()
 
 # Создание таблицы, если её ещё нет
 cursor.execute('''
-CREATE TABLE IF NOT EXISTS reputation (
+CREATE TABLE IF NOT EXISTS points (
     user_id INTEGER PRIMARY KEY,
-    reputation INTEGER DEFAULT 0
+    points INTEGER DEFAULT 0
 )
 ''')
 conn.commit()
@@ -61,10 +61,10 @@ async def on_reaction_add(reaction, user):
 
     if reaction.message.attachments:
         if reaction.emoji == '👍':
-            increase_reputation(user.id, 1)
+            increase_points(user.id, 1)
             print(f'{user.id} +1 {currentTime()}')
         elif reaction.emoji == '👎':
-            increase_reputation(user.id, -1)
+            increase_points(user.id, -1)
             print(f'{user.id} -1 {currentTime()}')
 
 
@@ -75,26 +75,26 @@ async def on_reaction_remove(reaction, user):
 
     if reaction.message.attachments:
         if reaction.emoji == '👍':
-            increase_reputation(user.id, -1)
+            increase_points(user.id, -1)
             print(f'{user.id} -1 {currentTime()}')
         elif reaction.emoji == '👎':
-            increase_reputation(user.id, 1)
+            increase_points(user.id, 1)
             print(f'{user.id} +1 {currentTime()}')
 
 
-def increase_reputation(user_id, delta):
+def increase_points(user_id, delta):
     try:
         cursor.execute(
-            'SELECT reputation FROM reputation WHERE user_id = ?', (user_id,))
+            'SELECT points FROM points WHERE id = ?', (user_id,))
         result = cursor.fetchone()
 
         if result:
-            new_reputation = result[0] + delta
+            new_points = result[0] + delta
             cursor.execute(
-                'UPDATE reputation SET reputation = ? WHERE user_id = ?', (new_reputation, user_id))
+                'UPDATE points SET points = ? WHERE id = ?', (new_points, user_id))
         else:
             cursor.execute(
-                'INSERT INTO reputation (user_id, reputation) VALUES (?, ?)', (user_id, delta))
+                'INSERT INTO points (id, points) VALUES (?, ?)', (user_id, delta))
 
         conn.commit()
         print('изменение зафиксировано')
@@ -129,6 +129,29 @@ async def terminal_listener():
 def currentTime():
     now = datetime.now()
     return now.strftime("%d-%m-%Y %H:%M:%S")
+
+
+def topPopularityStr(actualTopID, actualTopPoints):
+    topTitle = '**Звёзды:**\n'
+    if len(actualTopID) > 9:
+        topList = f'''🥇 <@{actualTopID[0]}> - **{actualTopPoints[0]}**
+🥈 <@{actualTopID[1]}> - **{actualTopPoints[1]}**
+🥉 <@{actualTopID[2]}> - **{actualTopPoints[2]}**
+__4.__   <@{actualTopID[3]}> - **{actualTopPoints[3]}**
+__5.__   <@{actualTopID[4]}> - **{actualTopPoints[4]}**
+__6.__   <@{actualTopID[5]}> - **{actualTopPoints[5]}**
+__7.__   <@{actualTopID[6]}> - **{actualTopPoints[6]}**
+__8.__   <@{actualTopID[7]}> - **{actualTopPoints[7]}**
+__9.__   <@{actualTopID[8]}> - **{actualTopPoints[8]}**
+__10.__ <@{actualTopID[9]}> - **{actualTopPoints[9]}**'''
+        return topTitle+topList
+    topList1, topList2 = '', ''
+    for i in range(len(actualTopID)):
+        topList1 += f'__{i +
+                         1}.__   <@{actualTopID[i]}> - **{actualTopPoints[i]}**\n'
+    for i in range(len(actualTopID), 10):
+        topList2 += f'__{i+1}.__\n'
+    return topTitle+topList1+topList2
 
 
 with open('token.txt') as r:
